@@ -32,22 +32,22 @@
         function grid(width = 50, height =50, thickness = 1, gridColor = "black", centerColor = "red"){
 
             let countX = 0; countY = 0;
-            let midx = Math.floor((600/width)/2);
-            let midy = Math.floor((600/height)/2);
+            let midx = Math.floor((canvas.width/width)/2);
+            let midy = Math.floor((canvas.height/height)/2);
 
             // vertical lines 
-            for(let i= 0; i < 600; i+=width){
+            for(let i= 0; i < canvas.width; i+=width){
 
                 let currentColor = countX == midx ? centerColor : gridColor;
-                line(i,0,i,600,currentColor, thickness);
+                line(i,0,i,canvas.height,currentColor, thickness);
                 countX++;
             }
 
             // horizontal lines 
-            for(let i= 0; i < 600; i+=height){
+            for(let i= 0; i < canvas.height; i+=height){
 
                 let currentColor = countY == midy ? centerColor : gridColor;
-                line(0,i,600,i,currentColor, thickness);
+                line(0,i,canvas.width,i,currentColor, thickness);
                 countY++;
             }
 
@@ -81,27 +81,57 @@
 
         function hands(r, cx, cy){
 
+            
+            //get time
+            let time = new Date();
+
+            //second hand
+            let secLen = r;
+            let secs = time.getSeconds() + time.getMilliseconds()/1000;
+            let stheta = secs > 15 ? ((secs - 15) * Math.PI)/30 : (45 + secs) * Math.PI/30;
+            line(cx, cy, secLen * Math.cos(stheta) + cx, secLen * Math.sin(stheta) + cy, "red");
+
+            // minute hand
+            let minLen =  0.85 * r;
+            let mins = time.getMinutes() + time.getSeconds()/60 + time.getMilliseconds()/60000;
+            let mintheta = mins > 15 ? ((mins -15) * Math.PI)/30 : (45 + mins) * Math.PI/30;
+            line(cx, cy, minLen * Math.cos(mintheta) + cx, minLen * Math.sin(mintheta) + cy);
+
+            // hour hand
+
+            hour = (time.getHours() % 12 || 12) + time.getMinutes()/60 + time.getSeconds()/3600;
+            let hrLen = 0.45 * r;
+            let hrtheta =  hour > 2 ? ((hour - 3)* Math.PI)/6 : (9 + hour) *Math.PI/6;
+            line(cx,cy, hrLen * Math.cos(hrtheta) + cx, hrLen * Math.sin(hrtheta) +cy);
 
             
         }
+
+
         
         function init(){
         canvas = document.getElementById("myCanvas");
         graphics = canvas.getContext("2d");
+
+        graphics.clearRect(0,0, canvas.width, canvas.height);
         
         let r =  240, cx = 300, cy = 300;
         circle(r,cx,cy,"black", 2,0.001);
-        grid(60,60,2,"black","red");
+        //grid(60,60,2,"black","red");
         ticks(r,cx,cy);
+        hands(r,cx,cy);
         
         // display date
         let d = new Date();
         document.getElementById("date").innerHTML = d;
         
         }
+
+        setInterval(init, 10);
         </script>
         </head>
         <body onload="init()">
+            
         <h1>My Heading</h1>
         <p id = "date">This is a very basic webpage.</p>
         <canvas id="myCanvas" width="600" height="600"
