@@ -1,0 +1,112 @@
+        <html>
+        <head>
+        <title>Page Title</title>
+        <script>
+        let canvas;
+        let graphics;
+        
+        function line(x1, y1, x2, y2, color = "black", width = 1 ){
+        graphics.beginPath();
+        graphics.strokeStyle = color;
+        graphics.lineWidth = width;
+        graphics.moveTo(x1, y1);
+        graphics.lineTo(x2, y2);
+        graphics.stroke();
+        }
+
+        function circle(r=150,cx =300, cy=300, color= "black",thickness,smoothness = 0.001){
+
+            graphics.beginPath();
+            graphics.strokeStyle = color;
+            graphics.lineWidth = thickness;
+            graphics.moveTo(r*Math.cos(0) + cx, r*Math.sin(0) + cy);
+        
+
+            for(let i = 0; i <=2* (Math.PI) + smoothness; i+=smoothness){
+
+                graphics.lineTo(r*Math.cos(i) + cx , r*Math.sin(i) + cy );
+            }
+            graphics.stroke();
+        }
+
+        function grid(width = 50, height =50, thickness = 1, gridColor = "black", centerColor = "red"){
+
+            let countX = 0; countY = 0;
+            let midx = Math.floor((600/width)/2);
+            let midy = Math.floor((600/height)/2);
+
+            // vertical lines 
+            for(let i= 0; i < 600; i+=width){
+
+                let currentColor = countX == midx ? centerColor : gridColor;
+                line(i,0,i,600,currentColor, thickness);
+                countX++;
+            }
+
+            // horizontal lines 
+            for(let i= 0; i < 600; i+=height){
+
+                let currentColor = countY == midy ? centerColor : gridColor;
+                line(0,i,600,i,currentColor, thickness);
+                countY++;
+            }
+
+        }
+
+        function ticks(r,cx,cy){
+        
+            
+            let sTckHght = 0.97 * r;
+            let bTckHght = 0.8 * r;
+            let gap = 0.95 * r;
+            let tickCount = -1;
+
+            for(let i = 0; i < 2* Math.PI;  i+= (2*Math.PI)/60){
+                
+                line(r * Math.cos(i)+ cx, r * Math.sin(i) + cy, sTckHght * Math.cos(i)+ cx, sTckHght * Math.sin(i) + cy);
+
+                if(tickCount == -1 || tickCount == 5){
+
+                    line(gap * Math.cos(i)+ cx, gap * Math.sin(i) + cy, bTckHght * Math.cos(i)+ cx, bTckHght * Math.sin(i) + cy);
+                    
+                    tickCount= 0;
+                }
+
+                tickCount++;
+
+            }
+
+
+        }
+
+        function hands(r, cx, cy){
+
+
+            
+        }
+        
+        function init(){
+        canvas = document.getElementById("myCanvas");
+        graphics = canvas.getContext("2d");
+        
+        let r =  240, cx = 300, cy = 300;
+        circle(r,cx,cy,"black", 2,0.001);
+        grid(60,60,2,"black","red");
+        ticks(r,cx,cy);
+        
+        // display date
+        let d = new Date();
+        document.getElementById("date").innerHTML = d;
+        
+        }
+        </script>
+        </head>
+        <body onload="init()">
+        <h1>My Heading</h1>
+        <p id = "date">This is a very basic webpage.</p>
+        <canvas id="myCanvas" width="600" height="600"
+        style="border:1px solid #d3d3d3;">
+        Your browser does not support the HTML5 canvas tag.
+        </canvas>
+        </body>
+        </html>
