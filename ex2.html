@@ -1,0 +1,163 @@
+<html>
+        <head>
+        <title>Page Title</title>
+        <script>
+        var canvas;
+        var graphics;
+        var canvasWidth;
+        var canvasHeight;
+
+        function splitScreen() {
+
+
+            graphics.beginPath();
+            graphics.moveTo(0, canvasHeight / 2);
+            graphics.lineTo(canvasWidth, canvasHeight / 2);
+            graphics.moveTo(canvasWidth / 2, 0);
+            graphics.lineTo(canvasWidth / 2, canvasHeight);
+            graphics.strokeStyle = "black";
+            graphics.stroke();
+        }
+
+        function drawLine(x1, y1, x2, y2, color, width = 1) {
+            graphics.beginPath();
+            graphics.moveTo(x1, y1);
+            graphics.lineTo(x2, y2);
+            graphics.strokeStyle = color;
+            graphics.lineWidth = width;
+            graphics.stroke();
+        }
+
+        function lines(x1, y1, x2, y2, spacing, count, color="black", width=1) {
+
+            for (var i = 0; i < count; i++) {
+                drawLine(x1, y1 + (i * spacing), x2, y2 + (i * spacing), color, width);
+            }
+        }
+
+        function shape2(x1,y1, width, height, color){
+
+            graphics.beginPath();
+            graphics.moveTo(x1, y1);
+            graphics.lineTo(x1 + width, y1);
+            graphics.lineTo(x1 + width, y1 + height);
+            graphics.lineTo(x1 + width / 2, y1 + height / 2);
+            graphics.lineTo(x1, y1 + height);
+            graphics.closePath();
+            graphics.fillStyle = color;
+            graphics.fill();
+        }
+
+        function oval(x,y,rx,ry,fill_color, outline_width=1, outline_color="black", smoothness = 0.001){
+
+            graphics.beginPath();
+            graphics.moveTo(x + rx, y);
+
+            var theta = 0;
+
+            for(var i = 0; i <= Math.PI * 2; i += smoothness) {
+                theta = i;
+                graphics.lineTo(x + rx * Math.cos(theta), y + ry * Math.sin(theta));
+            }
+
+            graphics.closePath();
+            graphics.fillStyle = fill_color;
+            graphics.fill();
+            graphics.strokeStyle = outline_color;
+            graphics.lineWidth = outline_width;
+            graphics.stroke();
+        }
+
+        function heart(){
+            
+            downx = 450;
+            downy = 580;
+            upx = downx;
+            upy = 350;
+            cx1c = 250;
+            cy1c = 200;
+            cx2c = 100;
+            cy2c = 100;
+
+            graphics.beginPath();
+            graphics.moveTo(downx, downy);
+            graphics.bezierCurveTo(downx - cx1c, downy - cy1c, downx - cx2c, upy - cy2c, upx, upy);
+
+            graphics.moveTo(downx, downy);
+            graphics.bezierCurveTo(downx + cx1c, downy - cy1c, downx + cx2c, upy - cy2c, upx, upy);
+            graphics.fillStyle = "red";
+            graphics.fill();
+            graphics.lineWidth = 4;
+            graphics.stroke();
+
+        }
+
+  
+
+        // ====================== Main Drawing Functions ======================
+
+        function drawLines() {
+            var startX = 15;
+            var startY = 15;
+            var endX = canvasWidth / 2 - 15;
+            var endY = 15;
+            var spacing = 22;
+            var width = 10;
+            var count = 13;
+            var color = "orange";
+            lines(startX, startY, endX, endY, spacing, count, color, width);
+        }
+
+        function drawShape2() {
+            var x1 = canvasWidth / 2 + 50;
+            var y1 = 50;
+            var width = 200;
+            var height = 200;
+            var color = "blue";
+            shape2(x1, y1, width, height, color);
+        }
+
+        function drawShape3(){
+
+            var x = 150;
+            var y = 550;
+            var rx = 125;
+            var ry = 22;
+            var dy = 2*ry;  
+
+            oval(x,y,rx,ry,"red",2);
+            oval(x,y-(1*dy),rx-(1*ry),ry,"yellow",2);
+            oval(x,y-(2*dy),rx-(2*ry),ry,"#00ff00",2);
+            oval(x,y-(3*dy),rx-(3*ry),ry,"cyan",2);
+            oval(x,y-(4*dy),rx-(4*ry),ry,"magenta",2);
+
+
+        }
+        
+
+
+
+        function init(){
+            canvas = document.getElementById("myCanvas");
+            graphics = canvas.getContext("2d");
+            canvasWidth = canvas.width;
+            canvasHeight = canvas.height;
+
+            splitScreen();
+            drawLines();
+            drawShape2();
+            drawShape3();
+            heart();
+        }
+ 
+        </script>
+        </head>
+        <body onload="init()">
+        <h1>My Heading</h1>
+        <p>This is a very basic webpage.</p>
+        <canvas id="myCanvas" width="600" height="600"
+        style="border:1px solid #d3d3d3;">
+        Your browser does not support the HTML5 canvas tag.
+        </canvas>
+        </body>
+        </html>
