@@ -29,6 +29,7 @@
             graphics.stroke();
         }
 
+
         function grid(width = 50, height =50, thickness = 1, gridColor = "black", centerColor = "red"){
 
             let countX = 0; countY = 0;
@@ -115,7 +116,7 @@
 
         graphics.clearRect(0,0, canvas.width, canvas.height);
         
-        let r =  240, cx = 300, cy = 300;
+        let r =  30, cx = 300, cy = 300;
         circle(r,cx,cy,"black", 2,0.001);
         //grid(60,60,2,"black","red");
         ticks(r,cx,cy);

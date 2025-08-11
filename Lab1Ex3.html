@@ -125,29 +125,25 @@
 
             }
 
-            else if(shapeChoice == "heart"){
+            else if(shapeChoice == "flower"){
 
             
-                let downx = x + 100;
-                let downy = y - 100;
-                let upx = downx
-                let upy = y + 10;
-                let cx1c = 100;
-                let cy1c = 100;
-                let cx2c = 100;
-                let cy2c = 100;
-
                 graphics.beginPath();
-                graphics.moveTo(downx, downy);
-                graphics.bezierCurveTo(downx - cx1c, downy - cy1c, downx - cx2c, upy - cy2c, upx, upy);
+                let points = 100;
+                for (let i = 0; i <= points; i++) {
+                    let angle = (i / points) * Math.PI * 2;
+                    
+                    
+                    let r = 15 + Math.sin(angle * 10) * 15;
 
-                graphics.moveTo(downx, downy);
-                graphics.bezierCurveTo(downx + cx1c, downy - cy1c, downx + cx2c, upy - cy2c, upx, upy);
+                    let cx = x + r * Math.cos(angle);
+                    let cy = y + r * Math.sin(angle);
 
+                    if (i === 0) graphics.moveTo(cx, cy);
+                    else graphics.lineTo(cx, cy);
+                }
                 graphics.fill();
-                graphics.lineWidth = 4;
                 graphics.stroke();
-
 
             }
 
@@ -185,7 +181,7 @@
             }
 
             else if(shapeChoice == "face"){
-
+                graphics.save();
                 graphics.beginPath();
                 graphics.arc(x, y, 20, 0, Math.PI * 2, true);  // face
                 graphics.fill();
@@ -197,13 +193,74 @@
                 graphics.fill();
 
                 graphics.beginPath();
+                graphics.arc(x - 9, y - 6, 2, 0, Math.PI * 2, true);  // left eye's light
+                graphics.fillStyle = "white";
+                graphics.fill();
+
+
+                graphics.beginPath();
                 graphics.arc(x + 10, y - 5, 5, 0, Math.PI * 2, true);  // right eye
                 graphics.fillStyle = "black";
                 graphics.fill();
 
                 graphics.beginPath();
-                graphics.arc(x, y + 5, 10, 0, Math.PI, false);  // mouth
-                graphics.stroke();
+                graphics.arc(x + 11, y - 6, 2, 0, Math.PI * 2, true);  // right eye's light
+                graphics.fillStyle = "white";
+                graphics.fill();
+                graphics.restore();
+
+                function happy(){
+
+                    graphics.beginPath();
+                    graphics.arc(x, y + 5, 10, 0, Math.PI, false);
+                    graphics.stroke();
+
+                }
+
+                function sad(){
+                    
+                    graphics.beginPath();
+                    graphics.arc(x, y + 10, 10, 0, Math.PI, true);
+                    graphics.stroke();
+
+                }
+
+                function shocked(){
+                    graphics.beginPath();
+                    graphics.arc(x,y+10,5,0, 2* Math.PI, true);
+                    graphics.fillStyle = "red";
+                    graphics.fill();
+                }
+                function ahh(){
+
+                    graphics.beginPath();
+                    graphics.arc(x, y + 5, 10, 0, Math.PI, false);
+                    graphics.lineTo(10*Math.cos(0) + x, 10*Math.sin(0) + y+5);
+                    console.log(graphics.fillStyle);
+                    graphics.fillStyle = (graphics.fillStyle === "#ff0000")? "white":"red";
+                    graphics.fill();
+                    graphics.stroke();
+
+                }
+
+                if(x < canvas.width/2 && y > canvas.height/2){
+
+                    sad();
+                }
+                else if(x > canvas.width/2 && y < canvas.height/2){
+
+                    happy();
+                }
+                else if(x < canvas.width/2 && y < canvas.height/2){
+
+                    ahh();
+                }
+
+                else{
+
+                    shocked();
+                }
+
 
             }
 
@@ -367,10 +424,10 @@
 <p><b>Shape:</b>
     <select id="shapeChoice">
         <option value="square">Square</option>
-        <option value="heart">Heart</option>
         <option value="line">Line</option>
         <option value="chaos">Chaos</option>
         <option value="face">Face</option>
+        <option value="flower">Flower</option>
 
     </select>
 </p>
