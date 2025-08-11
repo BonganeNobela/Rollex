@@ -1,20 +1,43 @@
         <html>
         <head>
         <title>Page Title</title>
+        <style>
+    /* This style section is here to make the canvas more obvious on the
+       page.  It is white on a light gray page background, with a thin
+       black border.  Also, turn off text selection to avoid having
+       selection interfere with mouse action. */
+    body {
+        background-color: #DDDDDD;
+        -webkit-user-select: none; /* turn off text selection  / Webkit */
+        -moz-user-select: none;    /* Firefox */
+        -ms-user-select: none;     /* IE 10  */
+        -o-user-select: none;      /* Opera */
+        user-select: none;
+    }
+    canvas {
+        background-color: rgb(0, 0, 0);
+        display: block;
+    }
+    #canvasholder {
+        border:2px solid black;
+        float: left; /* This makes the border exactly fit the canvas. */
+    }
+</style>
         <script>
         let canvas;
         let graphics;
         
-        function line(x1, y1, x2, y2, color = "black", width = 1 ){
-        graphics.beginPath();
-        graphics.strokeStyle = color;
-        graphics.lineWidth = width;
-        graphics.moveTo(x1, y1);
-        graphics.lineTo(x2, y2);
-        graphics.stroke();
+        function line(x1, y1, x2, y2, color = "black", width = 1, lineCap = "butt"){
+            graphics.beginPath();
+            graphics.strokeStyle = color;
+            graphics.lineWidth = width;
+            graphics.lineCap = lineCap;
+            graphics.moveTo(x1, y1);
+            graphics.lineTo(x2, y2);
+            graphics.stroke();
         }
 
-        function circle(r=150,cx =300, cy=300, color= "black",thickness,smoothness = 0.001){
+        function circle(r=150,cx =300, cy=300, color= "black",thickness,smoothness = 0.001,fill = false){
 
             graphics.beginPath();
             graphics.strokeStyle = color;
@@ -25,6 +48,10 @@
             for(let i = 0; i <=2* (Math.PI) + smoothness; i+=smoothness){
 
                 graphics.lineTo(r*Math.cos(i) + cx , r*Math.sin(i) + cy );
+            }
+            if(fill){
+                graphics.fillStyle = color;
+                graphics.fill();
             }
             graphics.stroke();
         }
@@ -57,27 +84,37 @@
         function ticks(r,cx,cy){
         
             
-            let sTckHght = 0.97 * r;
+            let sTckHght = r-20;
             let bTckHght = 0.8 * r;
+            let tickStart = r-10;
             let gap = 0.95 * r;
             let tickCount = -1;
+            let sTcWidth = 1;
+            let bTcWidth = 2 * sTcWidth;
+            let width = sTcWidth;
 
             for(let i = 0; i < 2* Math.PI;  i+= (2*Math.PI)/60){
-                
-                line(r * Math.cos(i)+ cx, r * Math.sin(i) + cy, sTckHght * Math.cos(i)+ cx, sTckHght * Math.sin(i) + cy);
-
                 if(tickCount == -1 || tickCount == 5){
-
-                    line(gap * Math.cos(i)+ cx, gap * Math.sin(i) + cy, bTckHght * Math.cos(i)+ cx, bTckHght * Math.sin(i) + cy);
-                    
-                    tickCount= 0;
+                    width = bTcWidth;
+                    tickCount = 0;
                 }
-
+                line(tickStart* Math.cos(i)+ cx, tickStart * Math.sin(i) + cy, sTckHght * Math.cos(i)+ cx, sTckHght * Math.sin(i) + cy, "grey", width);
+                width = sTcWidth;
                 tickCount++;
-
             }
 
-
+            // Draw hour numbers
+            graphics.font = `${Math.floor(r * 0.11)}px Arial`;
+            graphics.fillStyle = "black";
+            graphics.textAlign = "center";
+            graphics.textBaseline = "middle";
+            for (let h = 1; h <= 12; h++) {
+                let angle = (h - 3) * (Math.PI / 6); 
+                let numRadius = r * 0.8;
+                let x = cx + numRadius * Math.cos(angle);
+                let y = cy + numRadius * Math.sin(angle);
+                graphics.fillText(h.toString(), x, y);
+            }
         }
 
         function hands(r, cx, cy){
@@ -86,24 +123,68 @@
             //get time
             let time = new Date();
 
-            //second hand
-            let secLen = r;
+            //second hand (extends out of the center)
+            let secLen = r-15;
+            let secBackLen = 30; // how far back from center
             let secs = time.getSeconds() + time.getMilliseconds()/1000;
             let stheta = secs > 15 ? ((secs - 15) * Math.PI)/30 : (45 + secs) * Math.PI/30;
-            line(cx, cy, secLen * Math.cos(stheta) + cx, secLen * Math.sin(stheta) + cy, "red");
+            let secStartX = cx - secBackLen * Math.cos(stheta);
+            let secStartY = cy - secBackLen * Math.sin(stheta);
+            let secEndX = cx + secLen * Math.cos(stheta);
+            let secEndY = cy + secLen * Math.sin(stheta);
+            line(secStartX, secStartY, secEndX, secEndY, "#0272db", 2, "round");
 
             // minute hand
+            graphics.save();
+            graphics.lineWidth = 4;
             let minLen =  0.85 * r;
             let mins = time.getMinutes() + time.getSeconds()/60 + time.getMilliseconds()/60000;
             let mintheta = mins > 15 ? ((mins -15) * Math.PI)/30 : (45 + mins) * Math.PI/30;
-            line(cx, cy, minLen * Math.cos(mintheta) + cx, minLen * Math.sin(mintheta) + cy);
+            let minBase = 1; // width of base of triangle
+            let minTipX = cx + minLen * Math.cos(mintheta);
+            let minTipY = cy + minLen * Math.sin(mintheta);
+            let minLeftX = cx + minBase * Math.cos(mintheta + Math.PI/2);
+            let minLeftY = cy + minBase * Math.sin(mintheta + Math.PI/2);
+            let minRightX = cx + minBase * Math.cos(mintheta - Math.PI/2);
+            let minRightY = cy + minBase * Math.sin(mintheta - Math.PI/2);
+            graphics.beginPath();
+            graphics.moveTo(minTipX, minTipY);
+            graphics.lineTo(minLeftX, minLeftY);
+            graphics.lineTo(minRightX, minRightY);
+            graphics.closePath();
+            graphics.fillStyle = "#222";
+            graphics.strokeStyle = "#222";
+            graphics.lineJoin = "round";
+            graphics.lineCap = "round";
+            graphics.fill();
+            graphics.stroke();
+            graphics.restore();
 
             // hour hand
-
+            graphics.save();
+            graphics.lineWidth = 6;
             hour = (time.getHours() % 12 || 12) + time.getMinutes()/60 + time.getSeconds()/3600;
             let hrLen = 0.45 * r;
             let hrtheta =  hour > 2 ? ((hour - 3)* Math.PI)/6 : (9 + hour) *Math.PI/6;
-            line(cx,cy, hrLen * Math.cos(hrtheta) + cx, hrLen * Math.sin(hrtheta) +cy);
+            let hrBase = 1; // width of base of triangle
+            let hrTipX = cx + hrLen * Math.cos(hrtheta);
+            let hrTipY = cy + hrLen * Math.sin(hrtheta);
+            let hrLeftX = cx + hrBase * Math.cos(hrtheta + Math.PI/2);
+            let hrLeftY = cy + hrBase * Math.sin(hrtheta + Math.PI/2);
+            let hrRightX = cx + hrBase * Math.cos(hrtheta - Math.PI/2);
+            let hrRightY = cy + hrBase * Math.sin(hrtheta - Math.PI/2);
+            graphics.beginPath();
+            graphics.moveTo(hrTipX, hrTipY);
+            graphics.lineTo(hrLeftX, hrLeftY);
+            graphics.lineTo(hrRightX, hrRightY);
+            graphics.closePath();
+            graphics.fillStyle = "#222";
+            graphics.strokeStyle = "#444";
+            graphics.lineJoin = "round";
+            graphics.lineCap = "round";
+            graphics.fill();
+            graphics.stroke();
+            graphics.restore();
 
             
         }
@@ -116,12 +197,16 @@
 
         graphics.clearRect(0,0, canvas.width, canvas.height);
         
-        let r =  30, cx = 300, cy = 300;
-        circle(r,cx,cy,"black", 2,0.001);
+        let r =  240, cx = 300, cy = 300;
+        circle(r,cx,cy,"white", 2,0.001,true);
+        circle(r+2.5,cx,cy,"grey",4,0.001);
+        
         //grid(60,60,2,"black","red");
         ticks(r,cx,cy);
         hands(r,cx,cy);
-        
+        circle(r*0.038,cx,cy,"#222",2,0.001,true);
+        circle(r*0.03,cx,cy,"#0272db",2,0.001,true);
+        circle(r*0.01,cx,cy,"white",2,0.001,true);
         // display date
         let d = new Date();
         document.getElementById("date").innerHTML = d;
@@ -136,7 +221,7 @@
         <h1>My Heading</h1>
         <p id = "date">This is a very basic webpage.</p>
         <canvas id="myCanvas" width="600" height="600"
-        style="border:1px solid #d3d3d3;">
+        style="border:1px solid #c4c4c4;">
         Your browser does not support the HTML5 canvas tag.
         </canvas>
         </body>
